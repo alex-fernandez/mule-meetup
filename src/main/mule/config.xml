@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	  <http:listener-config xmlns:http="http://www.mulesoft.org/schema/mule/http" name="fabric-crm-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" name="fabric-crm-config" raml="fabric-crm.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <configuration-properties doc:name="Configuration properties" doc:id="494f7f8d-5251-4b0a-8054-7610e5818fe2" file="properties/system.properties" />
+	
+	<http:request-config name="HTTP_Request_ProfileRandomizer" doc:name="HTTP Request configuration" doc:id="1936539c-60fb-4688-805f-3d935fd853d8" responseTimeout="${randomizer.api.responsetimeout}">
+		<http:request-connection protocol="HTTPS" host="${randomizer.api.host}" port="${randomizer.api.port}"/>
+	</http:request-config>
+	<api-gateway:autodiscovery apiId="${api.id}" doc:name="API Autodiscovery" doc:id="5b3a0e0c-a972-46e5-b533-829787c0b9b8" flowRef="fabric-crm-main" />
+</mule>

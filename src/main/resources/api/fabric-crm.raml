@@ -1,0 +1,35 @@
+#%RAML 1.0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/0603738d-33be-45ac-8bc0-51e399edd76d/ # 
+version: v1
+title: fabric-crm-azure 
+mediaType: application/json
+
+traits:
+  client-id-required:
+    headers:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+    responses:
+      401:
+        description: Unauthorized or invalid client application credentials
+      500:
+        description: Bad response from authorization server, or WSDL SOAP Fault error
+/customers:
+  /search:
+    is: [client-id-required]
+    get:
+      queryParameters:
+        firstName: 
+          type: string
+          required: true
+        lastName:
+          type: string
+          required: true
+      description: Returns matching customers
+      responses: 
+        200:
+          body: 
+              example: !include examples/customer-list.json
+       

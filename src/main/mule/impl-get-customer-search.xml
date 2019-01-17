@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="impl-get-customer-searchSub_Flow" doc:id="3855c33f-fa16-4741-baf2-775cf7130074" >
+		<try doc:name="Try" doc:id="a4e00f66-6621-47c3-9afd-1d1d3a0a6d4b" >
+			<http:request config-ref="HTTP_Request_ProfileRandomizer" method="GET" doc:name="API Me Randomizer" doc:id="4bbb711c-360d-4200-9770-43b3939afb33" path="${randomizer.api.path}">
+				<http:response-validator >
+					<http:success-status-code-validator values="200" />
+				</http:response-validator>
+			</http:request>
+			<ee:transform doc:name="Response" doc:id="8f4357c8-4a63-4692-9f52-01f072075c78">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+import java!utils::Network
+---
+{
+  results: payload.results map (result) -> {
+  	firstName: vars.request.firstName,
+  	lastName:  vars.request.lastName,
+  	address: result.location
+  },
+  retailer: {
+    name: p('retailer.name'),
+    server: Network::getHostName(),
+    cloudProvider: p('retailer.serverprovider')
+  }
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="3c650396-9217-4a5b-8e03-53ac5e9d2933" >
+					<ee:transform doc:name="Bad Request" doc:id="24b9bf4e-65dc-4d16-8714-8507223eddc1" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json	
+---
+{
+	message: "Bad Request"
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<set-variable value="400" doc:name="httpStatus" doc:id="b649e784-9f25-4ec9-aa1d-a85ed4620347" variableName="httpStatus"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
+</mule>
